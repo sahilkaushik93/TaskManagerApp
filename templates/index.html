@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div>
+        <h1>Manage Task Like a Pro !!</h1>
+    </div>
+    <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    </div>
+
+    <div class="header">
+        <form action="{{ url_for('add_task') }}" method="POST">
+            <input type="text" name="task_content" placeholder="Add a new task" required>
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <div class="task-buttons">
+        {% for task in tasks %}
+            <div class="task">
+                <p>{{ task.content }}</p>
+                <div class="buttons">
+                    <form action="{{ url_for('complete_task', task_id=task.id) }}" method="POST">
+                        <button type="submit">Complete</button>
+                    </form>
+                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
+                        <button type="submit">Delete</button>
+                    </form>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Display Day Progress in a Table -->
+    <h2>Day Progress - {{ today }}</h2>
+    <table>
+        <tr>
+            <th>Task</th>
+            <th>Status</th>
+        </tr>
+        {% for task in completed_tasks %}
+            <tr>
+                <td>{{ task.content }}</td>
+                <td>Completed</td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
