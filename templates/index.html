@@ -3,54 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task List Manager</title>
+    <title>Task Manager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div>
-        <h1>Manage Task Like a Pro !!</h1>
-    </div>
-    <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    <div class="header">
+        <div class="heading">
+            <h1>Task Manager</h1>
+        </div>
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        </div>
     </div>
 
-    <div class="header">
+    <div class="add-task-container">
         <form action="{{ url_for('add_task') }}" method="POST">
+            <select name="priority">
+                <option value="Normal">Normal</option>
+                <option value="High">High</option>
+            </select>
             <input type="text" name="task_content" placeholder="Add a new task" required>
             <button type="submit">Add Task</button>
         </form>
     </div>
 
-    <div class="task-buttons">
+    <div class="task-container">
         {% for task in tasks %}
-            <div class="task">
-                <p>{{ task.content }}</p>
+            <div class="task {% if task.priority == 'High' %}high-priority{% endif %}">
+                <span>{{ task.content }}</span>
+                <span class="status">
+                    {% if task.completed %}
+                        {% if task.completion_date is not none %}Completed on {{ task.completion_date.strftime('%Y-%m-%d %H:%M:%S') }}
+                        {% else %}Completed{% endif %}
+                    {% else %}Pending{% endif %}
+                </span>
                 <div class="buttons">
-                    <form action="{{ url_for('complete_task', task_id=task.id) }}" method="POST">
-                        <button type="submit">Complete</button>
-                    </form>
                     <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST">
                         <button type="submit">Delete</button>
                     </form>
-
+                    {% if not task.completed %}
+                        <form action="{{ url_for('complete_task', task_id=task.id) }}" method="POST">
+                            <button type="submit">Complete</button>
+                        </form>
+                    {% endif %}
                 </div>
+                {% if task.priority == 'High' %}
+                    <span class="priority-tag">High Priority</span>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
 
-    <!-- Display Day Progress in a Table -->
-    <h2>Day Progress - {{ today }}</h2>
-    <table>
-        <tr>
-            <th>Task</th>
-            <th>Status</th>
-        </tr>
-        {% for task in completed_tasks %}
-            <tr>
-                <td>{{ task.content }}</td>
-                <td>Completed</td>
-            </tr>
-        {% endfor %}
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Start Date</th>
+                    <th>Complete Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.content }}</td>
+                        <td>
+                            {% if task.start_date %}
+                                {{ task.start_date.strftime('%Y-%m-%d %H:%M:%S') }}
+                            {% else %}
+                                Not Started
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.completion_date %}
+                                {{ task.completion_date.strftime('%Y-%m-%d %H:%M:%S') }}
+                            {% else %}
+                                Not Completed
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
